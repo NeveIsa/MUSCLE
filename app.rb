@@ -4,6 +4,8 @@ require 'json'
 require 'sinatra'
 
 
+enable :sessions
+
 conf=File.open("muscleconf.json").read
 conf=JSON.parse(conf)
 mosquitto_conf_file=conf["mosquitto_conf_file"]
@@ -67,6 +69,23 @@ set :expose_headers, "location,link"
 set :public_folder, 'public'
 
 
+before do
+	if !(request.path_info=="/login")
+		if session["logged"]==true
+		else 
+			redirect "/public/dashboard/login.html"
+		end
+	end
+end
+
+
+post '/login' do
+	username=params['uname']
+	password=params['passwd']
+	if username == basic_auth_user && password == basic_auth_pass
+		session["logged"]=true
+	end
+end
 
 get '/' do
 	redirect '/public/dashboard/index.html'
