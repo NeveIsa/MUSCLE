@@ -1,0 +1,425 @@
+<meta charset="UTF-8">  
+
+<script src="assets/jquery-3.4.1.min.js"></script>
+<link href="assets/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="assets/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+<script src="assets/vue.js"></script>
+
+
+<style>
+    body{
+      background-color: #afaeb0;
+background-image: url("assets/subtle-grey.png");
+/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */  
+    }
+
+    .set-button{
+      color:rgb(1, 233, 20)
+    }
+
+    .del-button{
+      color:red
+    }
+    .add-button{
+      color:rgb(1, 233, 20)
+    }
+
+    #isaInactiveUserTable{
+      background-color:rgba(175, 44, 83, 0.1)
+    }
+</style>
+
+<!------ Include the above in your HEAD tag ---------->
+<body>
+<div class="container">
+
+	<div class="row">
+		<div class="col-lg-4">
+    
+    <h4 class="page-header"><u><b><i>Mosquitto Active Users </i></b></u> &nbsp;
+      <button title="Add new user" class="btn-xs add-button" onClick='function disp(){ $("#NewUserAddPass").val("");$("#NewUserAddName").attr("disabled",false);$("#NewUserAddName").val("");$("#addNewUserModal").modal()};disp()'>
+         <span class="glypicon glyphicon glyphicon-plus"></span>        
+      </button>
+    </h4>
+    
+    <table id="isaUserTable" class="table table-bordered table-stripped table-hover" style="background-color:rgba(44, 175, 153,0.1)">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(user, index) in users">
+          <th scope="row">{{index}}</th>
+          <td>{{ user }}
+              <div class="pull-right">
+                  <button type='button' class="btn-xs" onClick='populateAclTable(this)' title="View ACL Table">
+                      <span class="glypicon glyphicon glyphicon-wrench set-button"></span>
+                  </button>
+                <button type='button' class="btn-xs" onClick="deleteUser(this)" title="Delete this user">
+                  <span class="glypicon glyphicon glyphicon-trash del-button"></span>
+                </button>
+              </div>
+          </td>
+        </tr>
+
+                
+      </tbody>
+    </table>
+
+
+
+    <!-- TABLE FOR INACTIVE USERS 
+      i.e. users found in ACL but not present in user list
+    -->
+
+    <div class="col-lg-16" id="isaInactiveUserDiv" :style="{display: inactiveUsers.length? 'block' : 'none'}">
+    <h4 class="page-header"><u><b><i>Mosquitto Inactive Users</i></b></u></h4> 
+    <table id="isaInactiveUserTable"  class="table table-bordered table-stripped table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(iuser, index) in inactiveUsers">
+          <th scope="row">{{index}}</th>
+          <td>{{ iuser }}
+              <div class="pull-right">
+                  <button type='button' class="btn-xs" onClick="populateAclTable(this)" title="View ACL Table">
+                      <span class="glypicon glyphicon glyphicon-wrench set-button"></span>
+                  </button>
+                  <button type='button' class="btn-xs" onClick="restoreInactiveUser(this)" title="Restore this user">
+                    <span class="glypicon glyphicon glyphicon-plus set-button"></span>
+                </button>
+               <!-- <button type='button' class="btn-xs">
+                  <span class="glypicon glyphicon glyphicon-trash" style="color:red"></span>
+                </button>-->
+              </div>
+          </td>
+        </tr>
+
+                
+      </tbody>
+    </table>
+  </div>
+
+    
+
+
+<!-- MODAL FOR ADDING NEW USER--> 
+<div class="modal fade" id="addNewUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Add New User</h4>
+      </div>
+   
+   
+      <div class="modal-body">    
+        <form>
+        <div class="form-group">
+          <label for="exampleInputUsername">Username</label>
+          <input type="username" class="form-control" id="NewUserAddName" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword">Password</label>
+          <input type="password" class="form-control" id="NewUserAddPass" placeholder="Password" required>
+        </div>
+        <!--<div class="form-group">
+          <label for="exampleInputFile">File input</label>
+          <input type="file" id="exampleInputFile">
+          <p class="help-block">Example block-level help text here.</p>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox"> Check me out
+          </label>
+        </div>-->
+      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick='createNewUser()'>Create User</button>
+      </div>
+    </div>
+  </div>
+</div> 
+<!-- MODAL FOR ADDING NEW USER--> 
+
+
+</div>
+    
+
+
+
+<div class="col-lg-8" id="aclTableDiv" style="display:none">
+
+
+<!-- MODAL FOR ADDING NEW ACL--> 
+<div class="modal fade" id="addNewAclModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <h4 class="modal-title">Add New ACL</h4>
+        </div>
+     
+     
+        <div class="modal-body">    
+          <form>
+          <div class="form-group">
+            <label for="exampleInputUsername">Username</label>
+            <input type="username" class="form-control" id="NewAclAddName" placeholder="Enter username" required disabled>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputTopic">Topic</label>
+            <input type="text" class="form-control" id="NewAclAddTopic" placeholder="Topic Name" required>
+          </div>
+          <div class="form-group">
+              <label for="exampleInputAccess">Access</label>
+              <select class="form-control" id="NewAclAddAccess" required>
+                <option value="read" selected>read</option>
+                <option value="write">write</option>
+                <option value="readwrite" >readwrite</option>
+              </select>
+            </div>
+          <!--<div class="form-group">
+            <label for="exampleInputFile">File input</label>
+            <input type="file" id="exampleInputFile">
+            <p class="help-block">Example block-level help text here.</p>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox"> Check me out
+            </label>
+          </div>-->
+        </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="AddNewAclModalCloseButton" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick='createNewAcl()'>Create ACL</button>
+        </div>
+      </div>
+    </div>
+  </div> 
+<!-- MODAL FOR ADDING NEW ACL--> 
+
+
+            <h4 class="page-header" >
+              <u><b><i>Mosquitto ACL Table for user -> {{user}}</i></b></u>
+              <button title="Add new ACL" :style="{visibility: isActiveUser(user)? 'visible':'hidden'}" id="addNewAclButton" class="btn-xs add-button" onClick='addAclShowModal(this)'>
+                  <span class="glypicon glyphicon glyphicon-plus add-button"></span>
+              </button>
+            </h4>
+            <table id="isaAclTable" class="table table-bordered table-stripped table-hover" style="background-color:rgba(44, 74, 175, 0.171)">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>User</th>
+                  <th>Topic</th>
+                  <th>Access</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(access, topicname, index) in acl">
+                  <th scope="row">{{index}}</th>
+                  <td>{{user}}</td>
+                  <td>{{topicname}}</td>
+                  <td>{{ access }}
+                      <div class="pull-right">
+                          <button :style="{visibility: isActiveUser(user)? 'visible':'hidden'}" type='button' class="btn-xs" onClick='modifyAclShowModal(this)' title="Modify this ACL">
+                              <span class="glypicon glyphicon glyphicon-wrench set-button"></span>
+                          </button>
+                        <button type='button' class="btn-xs" onClick='deleteAcl(this)' title="Delete this ACL">
+                          <span class="glypicon glyphicon glyphicon-trash del-button"></span>
+                        </button>
+                      </div>
+                  </td>
+                </tr>
+        
+                        
+              </tbody>
+            </table>
+            
+        </div>
+	</div>
+</div>
+
+</body>
+
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="assets/js/isavue.js"></script>
+
+
+<script>
+  
+  function createNewUser(name=null,pass=null)
+  {
+    // Check if name and pass are directly provided in argument
+    if(!name) name = $("#NewUserAddName").val().trim();
+    if(!pass) pass = $("#NewUserAddPass").val().trim();
+
+    if(name==="" || pass==="")
+    {
+      alert("Username or Password must not be empty !!!");
+      return;
+    }
+
+    //alert(name+":" + pass)
+
+    musc.createUser(name,pass,(data)=>{
+      if(!data){alert(`Failed to create new user - ${name} !!!`)}
+      else console.log(`Created user: ${name} -> ${data}`)
+
+      populatePage();
+    })
+
+    $("#addNewUserModal").modal('hide');
+   
+  }
+
+  function deleteUser(el)
+  {
+    name=$(el).parent().parent().text().trim()
+    if(confirm(`Do you want to delete the user: ${name}`))
+    {
+      musc.destroyUser(name,(data)=>{
+        if(!data){alert('Failed to delete user - ${uname} !!!')}
+        else console.log(`Deleted user: ${name} -> ${data}`)
+
+        populatePage();
+      })
+
+    }
+  }
+
+
+  function restoreInactiveUser(el)
+  {
+    name=$(el).parent().parent().text().trim()
+    
+    if(!confirm(`About to restore the inactive user-> ${name}. Sure?`)) return;
+
+
+    $("#NewUserAddName").val(name);
+    $("#NewUserAddPass").val("");
+
+    $("#NewUserAddName").attr("disabled",true);
+    $("#addNewUserModal").modal();
+    
+  }
+
+  function populateAclTable(el,name="")
+  {
+
+    //extract name only if not given directly
+    if(name==="")
+    {
+        name=$(el).parent().parent().text().trim()
+    }
+
+
+    musc.acls((data)=>{
+      if(!(name in data))
+      {
+        msg=`User->${name} has no ACLs yet.`
+        console.log(msg);
+        alert(msg);
+      }
+
+      acl = data[name] // get acl for this username
+      //topics = Object.keys(acl)
+
+      isaAcl.user = name
+      isaAcl.acl = acl
+
+    
+      $("#aclTableDiv").fadeIn('slow','linear');
+
+      // Update the username field in the form of the ACL Modal
+      $("#NewAclAddName").val(name)
+
+      console.log("\n---------------------------------------------------------------")
+      console.log(`Populated ACL for user->${name}\nACL->${JSON.stringify(acl)}`)
+      console.log("---------------------------------------------------------------\n")
+
+    })
+    
+  }
+
+
+  function deleteAcl(el)
+  {
+    var row=$(el).parent().parent().parent().children('td')
+    name=row.eq(0).text().trim()
+    topic=row.eq(1).text().trim()
+    access=row.eq(2).text().trim()
+    
+    msg=`About to delete ACL for user->${name} | topic->${topic} | access->${access}`
+    console.log(msg)
+    if(confirm(msg))
+    {
+      musc.destroyAcl(name,topic,(data)=>{
+        //alert(JSON.stringify(data))
+        populateAclTable(null,name)
+        populatePage();
+      })
+    }
+  }
+
+  function createNewAcl(el)
+  {
+    name = $("#NewAclAddName").val().trim();
+    topic = $("#NewAclAddTopic").val().trim();
+    access = $("#NewAclAddAccess").val().trim();
+
+    if(name==="" || topic==="") 
+    {
+      alert("Username and Topic must not be empty !")
+      return
+    }
+
+    if(['read','write','readwrite'].includes(access))
+    {
+      musc.createAcl(name,topic,access,(data)=>{
+        if(!data)
+        {
+          msg=`Failed to create ACL for user->${name} on topic->${topic} with access->${access}`
+          alert(msg)
+          console.log(msg)
+        }
+        populateAclTable(null,name)
+      })
+    }
+    else{
+      alert(`access can only be one of read, write or readwrite. given value = ${access}`)
+      return
+    }
+
+    // ("#addNewAclModal").modal('hide') // this is not working
+    $("#AddNewAclModalCloseButton").click() //work around to close modal
+
+  }
+
+  function addAclShowModal(el)
+  {
+    $("#NewAclAddTopic").attr('disabled',false);
+    $("#NewAclAddTopic").val(""); 
+    $("#addNewAclModal").modal();
+  }
+
+  function modifyAclShowModal(el)
+  {
+    var currentTopic=$(el).parent().parent().parent().children("td").eq(1).text().trim();
+    $("#NewAclAddTopic").val(currentTopic); 
+    $("#NewAclAddTopic").attr('disabled',true);
+    $("#addNewAclModal").modal();
+  }
+
+</script>
