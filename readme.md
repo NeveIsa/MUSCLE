@@ -1,32 +1,33 @@
-### This is MUSCLE - A Mosquitto ACL manager with REST APIs and dashboard. 
-
-[View project on Github](https://github.com/neveisa/MUSCLE)
+## This is MUSCLE - A Mosquitto ACL manager with REST APIs and dashboard. [|View on Github|](https://github.com/neveisa/MUSCLE)
 
 
 
-#### Steps to get Muscle running
----
+
+
+#### STEPS TO GET MUSCLE RUNNING -
+
 
 #### Setup using tools script
-* Install Ruby on your system
-* run ./tools-install-dependencies.sh
-* run ./tools-start-server.sh [port]
+1. Install Ruby on your system
+2. run ./tools-install-dependencies.sh
+3. run ./tools-start-server.sh [port]
 
 #### Manual Setup
-* Install Ruby on your system
-* Install Sinatra using `gem install sinatra`
-* Configure the authentication parameters by editing the file `muscleconf.json`
-* Run the server using `ruby app.rb`
+1. Install Ruby on your system
+2. Install Sinatra using `gem install sinatra`
+3. Configure the authentication parameters by editing the file `muscleconf.json`
+4. Run the server using `ruby app.rb`
+5. Go to the link http://{hostname}:9292 (hostname=localhost/machineIP) and enter the credentials to check everything is working
 
-* Go to the link http://{hostname}:9292 (hostname=localhost/machineIP) and enter the credentials to check everything is working
 
+#### Configuring and running Mosquitto MQTT Broker
+1. View the example Mosquitto configuration file - config-templates/mosquitto.conf.template 
+2. Either copy the above file into /etc/mosquitto/mosquitto.conf or modify your own configuration file accordingly.
+3. View the muscleconf.json file which contains the login credentials for consuming the REST APIs and the dashboard. Modify accordingly.
+4. Start Mosquitto MQTT Broker service is on your system - service mosquitto restart | systemctl restart mosquitto 
+5. Check is Mosquitto MQTT Broker service is running - service mosquitto status | systemctl restart status
 
-### Configuring Mosquitto 
-* View the example Mosquitto configuration file - config-templates/mosquitto.conf.template
-* Either copy the above file into /etc/mosquitto/mosquitto.conf or modify your own configuration file accordingly.
-* View the muscleconf.json file which contains the login credentials for consuming the REST APIs and the dashboard. Modify accordingly.
-
-### Consuming the API is straight forward as listed below	
+## Consuming the API is straight forward as listed below	
 
 ### Dashboard
 #### GET 
