@@ -17,7 +17,7 @@
 2. Install Sinatra using `gem install sinatra`
 3. Install Sinatra-CORS using `gem install sinatra-cors`
 4. Install Awesome Print using `gem install awesome_print`
-5. Configure the authentication parameters by editing the file `muscleconf.json`
+5. Configure the credentials by editing the file `muscleconf.json`
 6. Run the server using `ruby app.rb`
 7. Go to the link http://{hostname}:9292 (hostname=localhost/machineIP) and enter the credentials to check everything is working
 
