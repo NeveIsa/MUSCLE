@@ -6,21 +6,51 @@ require 'sinatra'
 
 enable :sessions
 
-conf=File.open("muscleconf.json").read
-conf=JSON.parse(conf)
-mosquitto_conf_file=conf["mosquitto_conf_file"]
-basic_auth_user=conf['basic_auth_user']
-basic_auth_pass=conf['basic_auth_pass']
 
+$mosquitto_conf_file=""
+$basic_auth_user=""
+$basic_auth_pass=""
+
+
+$MUSCLE_CONF_FILE="muscleconf.json"
+
+def loadMuscleConf
+	f=File.open($MUSCLE_CONF_FILE)
+	conf=f.read
+	f.close
+	
+	conf=JSON.parse(conf)
+
+	$mosquitto_conf_file=conf["mosquitto_conf_file"]
+	$basic_auth_user=conf['basic_auth_user']
+	$basic_auth_pass=conf['basic_auth_pass']
+end
+
+
+def dumpMuscleConfig(yconf)
+	g=open($MUSCLE_CONF_FILE,'w')
+	g.write(JSON.dump(yconf))
+	g.close
+
+	#reload muscle config
+	loadMuscleConf
+end
+
+
+
+
+
+# load Muscle conf on script start
+loadMuscleConf
 
 puts "========"*7
-puts "MOSQUITTO CONF. FILE: " + mosquitto_conf_file
+puts "MOSQUITTO CONF. FILE: " + $mosquitto_conf_file
 puts "========"*7
 
 aclsfile=""
 passwordfile=""
 
-File.open(mosquitto_conf_file).each do |line|
+File.open($mosquitto_conf_file).each do |line|
 	if /password_file (.+)/.match(line)
 		passwordfile,=/password_file (.+)/.match(line).captures
 		#puts passwordfile
@@ -33,7 +63,7 @@ end
 
 if aclsfile=="" or passwordfile==""
 	puts "============="
-	puts mosquitto_conf_file + " doesn't contain acl_file or password_file entry in it"		
+	puts $mosquitto_conf_file + " doesn't contain acl_file or password_file entry in it"		
 	puts "============="
 	exit
 end
@@ -52,7 +82,7 @@ model=Model.new(passwordfile,aclsfile)
 ##BASIC AUTH
 #
 use Rack::Auth::Basic, "Protected Area" do |username, password|
-	  username == basic_auth_user && password == basic_auth_pass
+	  username == $basic_auth_user && password == $basic_auth_pass
 end
 
 
@@ -70,20 +100,64 @@ set :public_folder, 'public'
 
 
 before do
-	if !(request.path_info=="/login")
+	if request.path_info=="/"
 		if session["logged"]==true
+			redirect "/public/dashboard/index.html"
 		else 
 			redirect "/public/dashboard/login.html"
+		end
+	elsif request.path_info=="/login"
+	else
+		if session["logged"]==true
+		else 
+			redirect "/login" 
 		end
 	end
 end
 
+post "/updateAdminSettings" do
+	content_type :json
 
+	newName = params['NewUname'].strip
+	newPass = params['NewPasswd'].strip
+
+	#puts newName,newPass
+
+
+	if (newName=="" || newPass=="")
+		return false.to_json
+	else
+		xconf={}
+		xconf["mosquitto_conf_file"]=$mosquitto_conf_file
+		xconf['basic_auth_user']=newName
+		xconf['basic_auth_pass']=newPass
+		dumpMuscleConfig(xconf)
+		return true.to_json
+	end
+end
+
+get '/logout' do
+	session["logged"]=false
+	redirect "/"
+end
+
+# checks login status
+get '/login' do
+	content_type :json
+	(session["logged"]==true).to_json
+end
+
+# does login
 post '/login' do
+	content_type :json
 	username=params['uname']
 	password=params['passwd']
-	if username == basic_auth_user && password == basic_auth_pass
+	if username == $basic_auth_user && password == $basic_auth_pass
 		session["logged"]=true
+		return true.to_json
+	else
+		session["logged"]=false
+		return false.to_json
 	end
 end
 

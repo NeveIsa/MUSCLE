@@ -137,8 +137,9 @@ function populatePage()
 
 function isActiveUser(username)
 {
-    
-    return isaUsers.users.includes(username)
+
+    // CHECKING if isaUsers.users==false is required -> this is the case when not logged in.
+    return isaUsers.users && isaUsers.users.includes(username)
 
     
 }

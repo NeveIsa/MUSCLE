@@ -28,12 +28,34 @@ background-image: url("assets/subtle-grey.png");
     #isaInactiveUserTable{
       background-color:rgba(175, 44, 83, 0.1)
     }
+
+    #logoutButton{
+      background-color: rgba(218, 19, 19, 0.555)
+
+    }
+
+    #adminSettingsButton{
+      background-color: rgba(46, 177, 46, 0.472)
+    }
+
+    #HUDMessageDiv{
+      opacity: 0.9;
+    }
 </style>
 
 <!------ Include the above in your HEAD tag ---------->
 <body>
 <div class="container">
+  
+  <div class="row">
+    <button class="btn-xs pull-right" id="logoutButton" onClick="logout()">logout</button>
+    <button class="btn-xs btn-user pull-right" id="adminSettingsButton" onClick='$("#AdminSettingsModal").modal()'>Admin Settings</button>
+    <button class="btn-xs btn-user pull-right" id="deployAclsButton" onClick='deployAclsToBroker'>Deploy ACLs in Broker</button>
 
+    <div class="col-lg-4 bg-danger" id="HUDMessageDiv"></div>
+  
+  </div>
+  
 	<div class="row">
 		<div class="col-lg-4">
     
@@ -150,6 +172,46 @@ background-image: url("assets/subtle-grey.png");
   </div>
 </div> 
 <!-- MODAL FOR ADDING NEW USER--> 
+
+
+
+
+
+<!-- MODAL FOR ADMIN SETTINGS --> 
+<div class="modal fade" id="AdminSettingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <h4 class="modal-title">Admin Settings</h4>
+        </div>
+     
+     
+        <div class="modal-body">    
+          <form>
+          <div class="form-group">
+            <label for="exampleInputUsername">Update Admin Username</label>
+            <input type="username" class="form-control" id="NewAdminName" placeholder="Enter New Username" required>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputTopic">Update Admin Password</label>
+            <input type="password" class="form-control" id="NewAdminPass" placeholder="New Password" required>
+          </div>
+          <div class="form-group">
+              <label for="exampleInputTopic">Retype Password</label>
+              <input type="password" class="form-control" id="NewAdminPassRetyped" placeholder="Re-enter Password" required>
+          </div>
+
+        </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick='UpdateAdminSettings()'>Update</button>
+        </div>
+      </div>
+    </div>
+  </div> 
+<!-- MODAL FOR ADMIN SETTINGS --> 
 
 
 </div>
@@ -421,5 +483,75 @@ background-image: url("assets/subtle-grey.png");
     $("#NewAclAddTopic").attr('disabled',true);
     $("#addNewAclModal").modal();
   }
+
+
+  function UpdateAdminSettings()
+  {
+    name=$("#NewAdminName").val().trim()
+    pass=$("#NewAdminPass").val().trim()
+    repass=$("#NewAdminPassRetyped").val().trim()
+
+    if(name==="" || pass==="" || repass==="") 
+    {
+      alert("No input field can remain blank !!!")
+      return;
+    }
+    
+    if(pass!==repass)
+    {
+      alert("The retyped passwords do not match");
+      return;
+    }
+
+    //POST new credentials
+    $.post("/updateAdminSettings",{NewUname:name,NewPasswd:pass},(data,status)=>{
+
+      if(status==="success" && data===true)
+      {
+        $("#AdminSettingsModal").modal('hide');
+        publishHUDMessage(`Successful. New Admin Name - ${name}. Logging out...`)
+        setTimeout(logout,1000); // simulate logout button click to logout
+      }
+    })
+  }
+
+
+
+
+  function publishHUDMessage(msg)
+  {
+    $("#HUDMessageDiv").html(msg);
+
+  }
+
+
+
+  function logout(){
+    axios.get("/logout").then((data)=>{
+
+      publishHUDMessage("Logged Out Successfully. Redirecting...");
+      setTimeout(()=>{window.location.href = "/"},2000)
+    })
+  }
+  
+
+function deployAclsToBroker()
+{
+  axios.get("/sighup").then((data)=>)
+}
+
+
+  $(document).ready(
+    ()=>{
+      $.get("/login",(data,status)=>{
+        if(status=="success" && data==true){}
+        else
+        {
+          console.log("You are not logged in. Redirecting to login.")
+          window.location.href = "/public/dashboard/login.html"
+        }
+      })
+    }
+  )
 
 </script>

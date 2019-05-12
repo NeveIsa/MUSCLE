@@ -1,0 +1,209 @@
+<meta charset="UTF-8"> 
+
+<head>
+    <title>Muscle - Mosquitto ACL Manager</title>
+</head>
+
+<script src="assets/jquery-3.4.1.min.js"></script>
+
+<link href="assets/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="assets/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+
+
+<style>
+body{
+    padding: 50px;
+    background-color: #000000;
+    background-image: url("assets/subtle-grey.png");
+}
+.modal-content
+{
+    background-color: #ffffff23;
+    text-align: center
+}
+
+
+.modal-dialog {
+    width: 300px;
+}
+.modal-footer {
+    height: 70px;
+    margin: 0;
+}
+.modal-footer .btn {
+    font-weight: bold;
+}
+.modal-footer .progress {
+    display: none;
+    height: 32px;
+    margin: 0;
+}
+.input-group-addon {
+    color: #fff;
+    background: #3276B1;
+}
+
+.form-control
+{
+    background-color: #0303032c;
+    color: white;
+    font-weight: bold
+
+}
+</style>
+
+
+<!--<button class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    Log in
+</button>-->
+
+<!--<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">-->
+<div id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title" id="myModalLabel" style="color:white">Muscle Log in</h4>
+			</div> <!-- /.modal-header -->
+
+			<div class="modal-body">
+				<form role="form">
+					<div class="form-group">
+						<div class="input-group">
+							<input type="text" class="form-control" id="uLogin" placeholder="Username" name="uname">
+							<label for="uLogin" class="input-group-addon glyphicon glyphicon-user"></label>
+						</div>
+					</div> <!-- /.form-group -->
+
+					<div class="form-group">
+						<div class="input-group">
+							<input type="password" class="form-control" id="uPassword" placeholder="Password" name="passwd">
+							<label for="uPassword" class="input-group-addon glyphicon glyphicon-lock"></label>
+						</div> <!-- /.input-group -->
+					</div> <!-- /.form-group -->
+
+					<!--<div class="checkbox">
+						<label>
+							<input type="checkbox"> Remember me
+						</label>
+					</div>  /.checkbox -->
+				</form>
+
+			</div> <!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button class="form-control btn btn-primary">Login</button>
+
+				<div class="progress">
+					<div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="100" style="width: 0%;">
+						<span class="sr-only">progress</span>
+					</div>
+				</div>
+			</div> <!-- /.modal-footer -->
+
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+<script>
+$(document).ready(function(){
+    $('.modal-footer button').click(function(){
+
+
+        if ($("#uLogin").val().trim().length==0 || $("#uPassword").val().trim().length == 0)
+        {
+            alert("None of Username or Password can be blank !!!")
+            return;
+        }
+
+        var button = $(this);
+        
+        var credentials=$("form").serialize()
+
+		if ( button.attr("data-dismiss") != "modal" ){
+			var inputs = $('form input');
+			var title = $('.modal-title');
+			var progress = $('.progress');
+            var progressBar = $('.progress-bar');
+            
+            
+
+			//inputs.attr("disabled", "disabled");
+
+			button.hide();
+
+			progress.show();
+
+			progressBar.animate({width : "0%"}, 100);
+			progressBar.animate({width : "100%"}, 100);
+
+			progress.delay(1000)
+                    .fadeOut(600);
+                    
+
+            $.post("/login",credentials,(data,HTTPstatus)=>{
+
+                        if(HTTPstatus=="success" && data==true)
+                        {
+
+                            button.text("Redirecting...")
+                                    .removeClass("btn-primary")
+                                    .addClass("btn-success")
+                                    .blur()
+                                    .delay(1600)
+                                    .fadeIn(function(){
+                                        title.text("Login successful");
+                                        button.attr("data-dismiss", "modal");
+                                    });
+
+
+                                setTimeout(()=>{window.location.href="/public/dashboard/index.html"},3000)
+                        }
+                        else{
+
+                            button.text("Retry Login")
+                                    .removeClass("btn-primary")
+                                    .addClass("btn-warning")
+                                    .blur()
+                                    .delay(1600)
+                                    .fadeIn(function(){
+                                        title.text("Muscle Login failed! Try Again.");
+                                       // button.attr("data-dismiss", "modal");
+                                    });
+
+                                   // inputs.attr("disabled", false);
+
+
+                        }
+                                
+                })
+		}
+	});
+
+	$('#myModal').on('hidden.bs.modal', function (e) {
+		var inputs = $('form input');
+		var title = $('.modal-title');
+		var progressBar = $('.progress-bar');
+		var button = $('.modal-footer button');
+
+		inputs.removeAttr("disabled");
+
+		title.text("Log in");
+
+		progressBar.css({ "width" : "0%" });
+
+		button.removeClass("btn-success")
+				.addClass("btn-primary")
+				.text("Ok")
+				.removeAttr("data-dismiss");
+                
+	});
+});
+
+</script>
