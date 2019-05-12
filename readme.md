@@ -1,4 +1,4 @@
-### This is MUSCLE - A Mosquitto ACL control interface over HTTP REST. 
+### This is MUSCLE - A Mosquitto ACL manager with REST APIs and dashboard. 
 
 [View project on Github](https://github.com/neveisa/MUSCLE)
 
@@ -23,10 +23,14 @@
 ### Consuming the API is straight forward as listed below	
 
 
+### Dashboard
+#### GET 
+* "/" - point your browser to the root of the server e.g http://localhost:9292 (default)
+
 ### Login 
 ##### NOTE: Use cookies if using curl/wget
 #### POST
-* "/login" - parameters in urlencoded format -> *uname* and *passwd* i.e uname=paul&passwd=dirac
+* "/login" - parameters in urlencoded format -> *uname* and *passwd* e.g uname=paul&passwd=dirac (default)
 
 #### GET
 * "/login" - returns true if you are logged in, else false
