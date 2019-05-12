@@ -3,7 +3,6 @@
 [View project on Github](https://github.com/neveisa/MUSCLE)
 
 
-#### Requirements - Ruby and Sinatra
 
 #### Steps to get Muscle running
 ---
