@@ -215,12 +215,14 @@ end
 
 
 get '/sighup' do
+	content_type :json
+
 	if not File.file?("/var/run/mosquitto.pid")
-		errormsg="Mosquitto is probably not running yet... /var/run/mosquitto.pid was not found"
-		halt 200,errormsg
+		errormsg={ "status"=>"fail"  ,"error" => "/var/run/mosquitto.pid not found. Mosquitto service running?"}
+		halt 200,errormsg.to_json
 	end
 	mosquittoPID=""
 	File.open("/var/run/mosquitto.pid") {|file| mosquittoPID = file.read().strip()}
 	result=Process.kill("HUP",mosquittoPID.to_i)
-	"mosquittoPID:"+mosquittoPID+",SIGHUPResult:"+result.to_s
+	{"status"=>"success","mosquittoPID"=>mosquittoPID,"SIGHUPResult"=>result}.to_json
 end

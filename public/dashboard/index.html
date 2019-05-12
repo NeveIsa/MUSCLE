@@ -273,7 +273,7 @@ background-image: url("assets/subtle-grey.png");
         </div>
         <div class="modal-footer">
           <button type="button" id="AddNewAclModalCloseButton" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick='createNewAcl()'>Create ACL</button>
+          <button type="button" class="btn btn-primary" onclick='createNewAcl()'>Create/Update ACL</button>
         </div>
       </div>
     </div>
@@ -343,6 +343,12 @@ background-image: url("assets/subtle-grey.png");
     }
 
     //alert(name+":" + pass)
+
+    // Alert if user already exists
+    if(isaUsers.users.includes(name))
+    {
+      if(!confirm(`About to update existing user-> ${name}. Sure?`)) return;
+    }
 
     musc.createUser(name,pass,(data)=>{
       if(!data){alert(`Failed to create new user - ${name} !!!`)}
@@ -570,7 +576,9 @@ function deployAclsToBroker()
     }
     else
     {
-      publishHUDMessage(`Deployed-> ${data}`);
+      if(data.status=="success") HUDstyle = "success"
+      else HUDstyle="danger"
+      publishHUDMessage(JSON.stringify(data),HUDstyle);
     }
   })
 }
