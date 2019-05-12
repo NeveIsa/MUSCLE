@@ -9,7 +9,7 @@
 #### Setup using tools script
 * Install Ruby on your system
 * run ./tools-install-dependencies.sh
-* run ./tools-start-server.sh
+* run ./tools-start-server.sh [port]
 
 #### Manual Setup
 * Install Ruby on your system
