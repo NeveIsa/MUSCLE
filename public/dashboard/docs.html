@@ -1,0 +1,43 @@
+<meta charset="UTF-8">
+
+
+<!--http://markedstyle.com/styles/github-->
+<link rel="stylesheet" type="text/css" href="assets/markedstyle.github-markdown.css">
+
+<!--https://marked.js.org/-->
+<script src="assets/marked.min.js"></script>
+
+
+<script src="assets/jquery-3.4.1.min.js"></script>
+
+<style>
+body{
+    padding: 50px;
+    background-color: #afaeb0;    
+    background-image: url("assets/subtle-grey.png");
+}
+</style>
+
+<body></body>
+
+
+
+
+<script>
+
+    // RENDERING MARKDOWN to HTML using marked.min.js from https://marked.js.org/
+
+$(document).ready(()=>{
+            $.get("/docs",(data,status)=>{
+                if(status!=="success"){
+                    setTimeout(()=>{window.location.reload()},1000);
+                }
+                else
+                {
+                    rendered=marked(data)
+                    $("body").html(rendered);
+
+                }
+            })
+});
+</script>

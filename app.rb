@@ -165,16 +165,27 @@ get '/' do
 	redirect '/public/dashboard/index.html'
 end
 
+
 get '/docs' do
-	content_type :json
+
+	# Using https://marked.js.org/ to render Markdown on the browser 
+
 	
-	{
-		"1-GET"=>["/users","/acls"],
-		"2-GET"=>["/user/{username}/{password}","/acl/{username}/{topic}/{access(read/write/readwrite)}"],
-		"3-DELETE"=>["/user/{username}","/acl/{username}/{topic}"],
-		"4-GET"=>["/sighup"],
-		"dashboard"=>"/public/dashboard/index.html"
-	}.to_json
+	f=File.open("readme.md")
+	readme=f.read()
+	f.close()
+
+	return readme
+
+
+	#content_type :json	
+	#{
+	#	"1-GET"=>["/users","/acls"],
+	#	"2-GET"=>["/user/{username}/{password}","/acl/{username}/{topic}/{access(read/write/readwrite)}"],
+	#	"3-DELETE"=>["/user/{username}","/acl/{username}/{topic}"],
+	#	"4-GET"=>["/sighup"],
+	#	"dashboard"=>"/public/dashboard/index.html"
+	#}.to_json
 end
 
 get '/users' do 
