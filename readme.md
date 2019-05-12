@@ -20,8 +20,13 @@
 
 * Go to the link http://{hostname}:9292 (hostname=localhost/machineIP) and enter the credentials to check everything is working
 
-### Consuming the API is straight forward as listed below	
 
+### Configuring Mosquitto 
+* View the example Mosquitto configuration file - config-templates/mosquitto.conf.template
+* Either copy the above file into /etc/mosquitto/mosquitto.conf or modify your own configuration file accordingly.
+* View the muscleconf.json file which contains the login credentials for consuming the REST APIs and the dashboard. Modify accordingly.
+
+### Consuming the API is straight forward as listed below	
 
 ### Dashboard
 #### GET 
