@@ -1,4 +1,6 @@
-### This is MUSCLE - A Mosquitto ACL control interface over HTTP REST.
+### This is MUSCLE - A Mosquitto ACL control interface over HTTP REST. 
+
+[View project on Github](https://github.com/neveisa/MUSCLE)
 
 
 #### Requirements - Ruby and Sinatra

@@ -107,6 +107,7 @@ before do
 			redirect "/public/dashboard/login.html"
 		end
 	elsif request.path_info=="/login"
+	elsif request.path_info=="/docs"
 	else
 		if session["logged"]==true
 		else 
