@@ -116,6 +116,13 @@ class Muscle {
         })
     }
 
+    sighup(callback)
+    {
+        axios.get("/sighup",callback).then((r)=>{
+            callback(r.data)
+        })
+    }
+
 }
 
 

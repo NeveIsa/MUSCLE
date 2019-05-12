@@ -38,8 +38,12 @@ background-image: url("assets/subtle-grey.png");
       background-color: rgba(46, 177, 46, 0.472)
     }
 
+    #deployAclsButton{
+      background-color: rgba(37, 140, 199, 0.308)
+    }
+
     #HUDMessageDiv{
-      opacity: 0.9;
+      opacity: 0.75;
     }
 </style>
 
@@ -50,9 +54,14 @@ background-image: url("assets/subtle-grey.png");
   <div class="row">
     <button class="btn-xs pull-right" id="logoutButton" onClick="logout()">logout</button>
     <button class="btn-xs btn-user pull-right" id="adminSettingsButton" onClick='$("#AdminSettingsModal").modal()'>Admin Settings</button>
-    <button class="btn-xs btn-user pull-right" id="deployAclsButton" onClick='deployAclsToBroker'>Deploy ACLs in Broker</button>
+    <button class="btn-xs btn-user pull-right" id="deployAclsButton" onClick='deployAclsToBroker()'>Deploy ACLs in Broker</button>
 
-    <div class="col-lg-4 bg-danger" id="HUDMessageDiv"></div>
+    <div class="col-lg-4" id="HUDMessageDiv"></div>
+
+    <div class="col-lg-1">&nbsp; &nbsp; &nbsp; &nbsp;</div>
+    <div class="col-lg-4" style="color:white;background-color:rgba(0, 0, 0, 0.465);padding-top: 0.25em;padding-bottom: 0.25em"> <b><u>MUSCLE - Mosquitto Access Control List Manager</u></b></div>
+    
+
   
   </div>
   
@@ -518,9 +527,26 @@ background-image: url("assets/subtle-grey.png");
 
 
 
-  function publishHUDMessage(msg)
+  function publishHUDMessage(msg,bgstyle='info')
   {
-    $("#HUDMessageDiv").html(msg);
+    bgstyle="bg-" + bgstyle;
+
+    var hud=$("#HUDMessageDiv")
+    
+    //remove the last class
+    hud.removeClass(window.HUDMessageClass)
+
+    //add the class
+    hud.addClass(bgstyle);
+    hud.html(msg);
+
+    //store the last bgstyle
+    window.HUDMessageClass = bgstyle
+
+
+    // Remove HUD message after some time
+    clearTimeout(window.HUDMessageHideTimeout)
+    window.HUDMessageHideTimeout = setTimeout(()=>{hud.html("")},3000);
 
   }
 
@@ -537,7 +563,16 @@ background-image: url("assets/subtle-grey.png");
 
 function deployAclsToBroker()
 {
-  axios.get("/sighup").then((data)=>)
+  musc.sighup((data)=>{
+    if(!data) 
+    {
+      alert("Failed to deploy on Mosquitto Broker.");
+    }
+    else
+    {
+      publishHUDMessage(`Deployed-> ${data}`);
+    }
+  })
 }
 
 
