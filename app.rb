@@ -81,9 +81,9 @@ model=Model.new(passwordfile,aclsfile)
 
 ##BASIC AUTH
 #
-use Rack::Auth::Basic, "Protected Area" do |username, password|
-	  username == $basic_auth_user && password == $basic_auth_pass
-end
+#use Rack::Auth::Basic, "Protected Area" do |username, password|
+#	  username == $basic_auth_user && password == $basic_auth_pass
+#end
 
 
 
