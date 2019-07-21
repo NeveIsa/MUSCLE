@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     awesome_print (1.8.0)
+    base32 (0.3.2)
     mustermann (1.0.3)
     rack (2.0.7)
     rack-protection (2.0.5)
@@ -19,6 +20,7 @@ PLATFORMS
 
 DEPENDENCIES
   awesome_print
+  base32
   sinatra
   sinatra-cors
 

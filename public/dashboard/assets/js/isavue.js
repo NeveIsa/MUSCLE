@@ -96,6 +96,7 @@ class Muscle {
 
     createAcl(uname,topic,access,callback)
     {
+	topic=base32.encode(topic) // we need this as a slash in topic will break Sinatra e.g hello/world
         axios.get(this.baseURL + `/acl/${uname}/${topic}/${access}`).then((r)=>{
             callback(r.data)
         })
@@ -111,6 +112,7 @@ class Muscle {
 
     destroyAcl(uname,topic,callback)
     {
+	topic=base32.encode(topic) // we need this as a slash in topic will break Sinatra e.g hello/world
         axios.delete(this.baseURL + `/acl/${uname}/${topic}`).then((r)=>{
             callback(r.data)
         })

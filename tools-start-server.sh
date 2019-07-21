@@ -11,4 +11,9 @@ echo $port
 
 sudo fuser -k $port/tcp
 #sudo rackup
+
+
+xdg-open http://localhost:9292
+
 sudo bundle exec rackup -p $port
+

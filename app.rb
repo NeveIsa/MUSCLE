@@ -2,6 +2,7 @@
 require_relative 'model'
 require 'json'
 require 'sinatra'
+require 'base32'
 
 
 enable :sessions
@@ -212,6 +213,9 @@ get '/acls' do
 end
 
 get '/acl/:username/:topic/:access' do |u,t,a|
+	t = Base32.decode(t) # we have b32 encoded the topic in javascript as otherwise topics
+			     # like hello/world will break Sinatra because of the slash
+	
 	if a=="read" or a=="write" or a=="readwrite"
 		content_type :json
 		model.putAcls(u,t,a).to_json
@@ -221,6 +225,10 @@ get '/acl/:username/:topic/:access' do |u,t,a|
 end
 
 delete '/acl/:username/:topic' do |u,t|
+
+	t = Base32.decode(t) # we have b32 encoded the topic in javascript as otherwise topics
+			     # like hello/world will break Sinatra because of the slash
+	
 	content_type :json
 	model.delAcls(u,t).to_json
 end
